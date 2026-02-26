@@ -43,7 +43,7 @@ const LoadingCard = memo<{ url: string }>(({ url }) => {
   return (
     <Flexbox className={styles.container}>
       <Flexbox horizontal className={styles.cardBody} justify={'space-between'}>
-        <a href={url} rel={'nofollow noreferrer'} target={'_blank'}>
+        <a href={url} rel={'nofollow'} target={'_blank'}>
           <div className={styles.text}>{url}</div>
         </a>
         <CopyButton content={url} size={'small'} />

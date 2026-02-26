@@ -23,7 +23,7 @@ const SearchResultItem = memo<UniformSearchResult & { style?: CSSProperties }>(
     const urlObj = new URL(url);
     const host = urlObj.hostname;
     return (
-      <a href={url} rel={'noreferrer'} target={'_blank'}>
+      <a href={url} target={'_blank'}>
         <Block
           clickable
           className={styles.container}

@@ -8,8 +8,8 @@ import {
   Icon,
   Markdown,
   Segmented,
-  Text,
   stopPropagation,
+  Text,
 } from '@lobehub/ui';
 import { Descriptions } from 'antd';
 import { createStaticStyles } from 'antd-style';
@@ -165,7 +165,7 @@ const PageContent = memo<PageContentProps>(({ result }) => {
           <a
             className={styles.url}
             href={url}
-            rel={'nofollow noreferrer'}
+            rel={'nofollow'}
             style={{ display: 'flex', gap: 4 }}
             target={'_blank'}
             onClick={stopPropagation}
