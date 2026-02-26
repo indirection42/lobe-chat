@@ -23,12 +23,13 @@ function requireEnv(name: string): string {
 
 async function main() {
   const publicDomain = new URL(requireEnv('MOBILE_S3_PUBLIC_DOMAIN')).origin;
-  const keyPrefix = (process.env.MOBILE_S3_KEY_PREFIX || 'mobile/latest').replaceAll(
+  const timestamp = new Date().toISOString().replaceAll(/[-:]/g, '').replace('T', '-').slice(0, 15); // e.g. 20260226-153012
+  const keyPrefix = (process.env.MOBILE_S3_KEY_PREFIX || `mobile/${timestamp}`).replaceAll(
     /^\/+|\/+$/g,
     '',
   );
 
-  // VITE_CDN_BASE = domain + optional key prefix, e.g. https://web-assets.lobehub.com/mobile/latest/
+  // VITE_CDN_BASE = domain + optional key prefix, e.g. https://web-assets.lobehub.com/mobile/20260226-153012/
   const cdnBase = `${publicDomain.replace(/\/+$/, '')}/${keyPrefix}/`;
 
   // Step 1: Build mobile SPA with CDN base
