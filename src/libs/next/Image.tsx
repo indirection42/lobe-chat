@@ -3,7 +3,7 @@
  * Preserves the most common Next.js Image props for API compat.
  */
 
-import { type CSSProperties, type ImgHTMLAttributes, forwardRef } from 'react';
+import { type CSSProperties, type ImgHTMLAttributes } from 'react';
 
 export interface StaticImageData {
   blurDataURL?: string;
@@ -21,24 +21,25 @@ export interface ImageProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 's
   unoptimized?: boolean;
 }
 
-const Image = forwardRef<HTMLImageElement, ImageProps>(
-  ({ src, fill, priority, quality, sizes, unoptimized, style, ...rest }, ref) => {
-    const resolvedSrc = typeof src === 'string' ? src : src.src;
+const Image = ({
+  ref,
+  src,
+  fill,
+  priority,
+  quality,
+  sizes,
+  unoptimized,
+  style,
+  ...rest
+}: ImageProps & { ref?: React.RefObject<HTMLImageElement | null> }) => {
+  const resolvedSrc = typeof src === 'string' ? src : src.src;
 
-    const fillStyle: CSSProperties | undefined = fill
-      ? { height: '100%', left: 0, objectFit: 'cover', position: 'absolute', top: 0, width: '100%' }
-      : undefined;
+  const fillStyle: CSSProperties | undefined = fill
+    ? { height: '100%', left: 0, objectFit: 'cover', position: 'absolute', top: 0, width: '100%' }
+    : undefined;
 
-    return (
-      <img
-        ref={ref}
-        src={resolvedSrc}
-        style={{ ...fillStyle, ...style }}
-        {...rest}
-      />
-    );
-  },
-);
+  return <img ref={ref} src={resolvedSrc} style={{ ...fillStyle, ...style }} {...rest} />;
+};
 
 Image.displayName = 'Image';
 

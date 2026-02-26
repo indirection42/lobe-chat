@@ -100,14 +100,16 @@ const isDev = process.env.NODE_ENV !== 'production';
 
 interface SharedRendererOptions {
   platform: Platform;
+  tsconfigPaths?: boolean;
 }
 
 export function sharedRendererPlugins(options: SharedRendererOptions) {
+  const defaultTsconfigPaths = options.tsconfigPaths ?? true;
   return [
     nodePolyfills({ include: ['buffer'] }),
     viteNodeModuleStub(),
     vitePlatformResolve(options.platform),
-    tsconfigPaths(),
+    defaultTsconfigPaths && tsconfigPaths({ projects: ['.'] }),
     isDev &&
       codeInspectorPlugin({
         bundler: 'vite',

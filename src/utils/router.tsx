@@ -11,6 +11,7 @@ import {
   useRouteError,
 } from 'react-router-dom';
 
+import BusinessGlobalProvider from '@/business/client/BusinessGlobalProvider';
 import ErrorCapture from '@/components/Error';
 import Loading from '@/components/Loading/BrandTextLoading';
 import { useGlobalStore } from '@/store/global';
@@ -172,7 +173,11 @@ export function createAppRouter(routes: RouteConfig[], options?: CreateAppRouter
     [
       {
         children: routes as RouteObject[],
-        element: <Outlet />,
+        element: (
+          <BusinessGlobalProvider>
+            <Outlet />
+          </BusinessGlobalProvider>
+        ),
         errorElement: <ErrorBoundary resetPath="/" />,
         path: '/',
       },

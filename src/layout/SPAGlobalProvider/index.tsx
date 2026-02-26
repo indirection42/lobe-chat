@@ -1,12 +1,10 @@
 'use client';
 
-import { ENABLE_BUSINESS_FEATURES } from '@lobechat/business-const';
 import { ContextMenuHost, ModalHost, ToastHost, TooltipGroup } from '@lobehub/ui';
 import { domMax, LazyMotion } from 'motion/react';
 import { type PropsWithChildren, useLayoutEffect } from 'react';
 import { memo, Suspense } from 'react';
 
-import { ReferralProvider } from '@/business/client/ReferralProvider';
 import { LobeAnalyticsProviderWrapper } from '@/components/Analytics/LobeAnalyticsProviderWrapper';
 import { DragUploadProvider } from '@/components/DragUploadZone/DragUploadProvider';
 import { isDesktop } from '@/const/version';
@@ -66,7 +64,6 @@ const SPAGlobalProvider = memo<PropsWithChildren>(({ children }) => {
               </AuthProvider>
             </QueryProvider>
             <Suspense>
-              {ENABLE_BUSINESS_FEATURES ? <ReferralProvider /> : null}
               <ImportSettings />
               {/* DevPanel disabled in SPA: depends on node:fs */}
             </Suspense>
