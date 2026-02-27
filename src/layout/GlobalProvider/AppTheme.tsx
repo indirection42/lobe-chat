@@ -82,10 +82,15 @@ const styles = createStaticStyles(
       }
     `,
   }),
+  // @ts-expect-error experimental extract option from antd-style zero-runtime branch
   {
     styleId: 'layout-global-app-theme',
   },
-);
+) as {
+  app: string;
+  scrollbar: string;
+  scrollbarPolyfill: string;
+};
 
 export interface AppThemeProps {
   children?: ReactNode;
