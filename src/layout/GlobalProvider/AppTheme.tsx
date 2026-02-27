@@ -80,7 +80,9 @@ const styles = createStaticStyles(({ css, cssVar }) => ({
       background-color: transparent;
     }
   `,
-}));
+}), {
+  styleId: 'layout-global-app-theme',
+});
 
 export interface AppThemeProps {
   children?: ReactNode;

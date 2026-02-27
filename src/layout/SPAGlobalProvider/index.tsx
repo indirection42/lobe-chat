@@ -20,6 +20,7 @@ import StoreInitialization from '@/layout/GlobalProvider/StoreInitialization';
 import { ServerConfigStoreProvider } from '@/store/serverConfig/Provider';
 import type { SPAServerConfig } from '@/types/spaServerConfig';
 
+import ExtractStyleHydrator from './ExtractStyleHydrator';
 import Locale from './Locale';
 
 const SPAGlobalProvider = memo<PropsWithChildren>(({ children }) => {
@@ -35,6 +36,7 @@ const SPAGlobalProvider = memo<PropsWithChildren>(({ children }) => {
 
   return (
     <Locale defaultLang={locale}>
+      <ExtractStyleHydrator />
       <NextThemeProvider>
         <AppTheme>
           <ServerConfigStoreProvider

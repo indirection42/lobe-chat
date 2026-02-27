@@ -1,5 +1,6 @@
 import { resolve } from 'node:path';
 
+import * as antdStyle from 'antd-style';
 import type { PluginOption } from 'vite';
 import { defineConfig, loadEnv } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
@@ -18,6 +19,10 @@ Object.assign(process.env, loadEnv(mode, process.cwd(), ''));
 
 const isDev = process.env.NODE_ENV !== 'production';
 const platform = isMobile ? 'mobile' : 'web';
+const enableAntdStyleExtract = process.env.ANTD_STYLE_EXTRACT === '1';
+const extractVitePlugin = (antdStyle as any).AntdStyleExtractVitePlugin as
+  | ((...args: any[]) => PluginOption)
+  | undefined;
 
 export default defineConfig({
   base: isDev ? '/' : process.env.VITE_CDN_BASE || '/spa/',
@@ -32,6 +37,32 @@ export default defineConfig({
   optimizeDeps: sharedOptimizeDeps,
   plugins: [
     ...sharedRendererPlugins({ platform }),
+
+    enableAntdStyleExtract &&
+      typeof extractVitePlugin === 'function' &&
+      extractVitePlugin({
+        cssFile: 'assets/__antd-style.extract.css',
+        experimentalStaticCollect: true,
+        manifestFile: 'assets/__antd-style.extract.manifest.json',
+        staticCollect: {
+          exclude: /node_modules/,
+          include: (resourcePath) =>
+            /\.[cm]?[jt]sx?$/.test(resourcePath) &&
+            (resourcePath.includes('/src/') || resourcePath.includes('/packages/')),
+          rootDir: process.cwd(),
+        },
+      }),
+    enableAntdStyleExtract &&
+      typeof extractVitePlugin === 'function' &&
+      !isDev && {
+        name: 'antd-style-extract-css-link',
+        transformIndexHtml(html) {
+          return html.replace(
+            '</head>',
+            '    <link rel="stylesheet" href="%BASE_URL%assets/__antd-style.extract.css" />\n  </head>',
+          );
+        },
+      },
 
     VitePWA({
       injectRegister: null,
