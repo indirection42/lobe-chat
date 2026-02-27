@@ -6,6 +6,8 @@ import { type PropsWithChildren } from 'react';
 import { isDesktop } from '@/const/version';
 import { useServerInsertedHTML } from '@/libs/next/navigation';
 
+import ExtractStyleHydrator from './ExtractStyleHydrator';
+
 const StyleRegistry = ({ children }: PropsWithChildren) => {
   useServerInsertedHTML(() => {
     return (
@@ -23,7 +25,12 @@ const StyleRegistry = ({ children }: PropsWithChildren) => {
     );
   });
 
-  return <StyleProvider>{children}</StyleProvider>;
+  return (
+    <StyleProvider>
+      <ExtractStyleHydrator />
+      {children}
+    </StyleProvider>
+  );
 };
 
 export default StyleRegistry;

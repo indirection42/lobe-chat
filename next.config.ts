@@ -1,6 +1,11 @@
+import * as antdStyle from 'antd-style';
+
 import { defineConfig } from './src/libs/next/config/define-config';
 
 const isVercel = !!process.env.VERCEL_ENV;
+const enableAntdStyleExtract = process.env.ANTD_STYLE_EXTRACT === '1';
+const ExtractWebpackPlugin = (antdStyle as any)
+  .AntdStyleExtractWebpackPlugin as (new (...args: any[]) => any) | undefined;
 
 const nextConfig = defineConfig({
   // Vercel serverless optimization: exclude musl binaries and ffmpeg from all routes
@@ -28,6 +33,25 @@ const nextConfig = defineConfig({
     const { dev } = context;
     if (!dev) {
       webpackConfig.cache = false;
+    }
+
+    if (enableAntdStyleExtract && typeof ExtractWebpackPlugin === 'function') {
+      webpackConfig.plugins ||= [];
+      webpackConfig.plugins.push(
+        new ExtractWebpackPlugin({
+          cssFile: 'static/__antd-style.extract.css',
+          experimentalStaticCollect: true,
+          manifestFile: 'static/__antd-style.extract.manifest.json',
+          staticCollect: {
+            exclude: /node_modules/,
+            include: (resourcePath: string) =>
+              /\.[cm]?[jt]sx?$/.test(resourcePath) &&
+              (resourcePath.includes('/src/') ||
+                resourcePath.includes('/packages/')),
+            rootDir: process.cwd(),
+          },
+        }),
+      );
     }
 
     return webpackConfig;

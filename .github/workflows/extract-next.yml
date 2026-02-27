@@ -1,0 +1,82 @@
+name: Extract Next CI
+
+on:
+  workflow_dispatch: {}
+  push:
+    paths:
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "next.config.ts"
+      - "scripts/verifyAntdStyleExtractNext.mjs"
+      - "src/layout/GlobalProvider/AppTheme.tsx"
+      - "src/layout/GlobalProvider/StyleRegistry.tsx"
+      - "src/layout/GlobalProvider/ExtractStyleHydrator.tsx"
+      - ".github/workflows/extract-next.yml"
+  pull_request:
+    paths:
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "next.config.ts"
+      - "scripts/verifyAntdStyleExtractNext.mjs"
+      - "src/layout/GlobalProvider/AppTheme.tsx"
+      - "src/layout/GlobalProvider/StyleRegistry.tsx"
+      - "src/layout/GlobalProvider/ExtractStyleHydrator.tsx"
+      - ".github/workflows/extract-next.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  extract-next:
+    name: Build and verify Next extract pipeline
+    runs-on: ubuntu-latest
+    env:
+      ANTD_STYLE_EXTRACT: "1"
+      NEXT_PUBLIC_ANTD_STYLE_EXTRACT: "1"
+      NODE_OPTIONS: --max-old-space-size=8192
+      KEY_VAULTS_SECRET: "Q10pwdq00KXUu9R+c8A8p4PSlIRWi7KwgUophBtkHVk="
+      DATABASE_URL: "postgres://user:pass@127.0.0.1:5432/lobehub"
+      AUTH_SECRET: "0123456789abcdef0123456789abcdef"
+      BETTER_AUTH_SECRET: "0123456789abcdef0123456789abcdef"
+      QSTASH_TOKEN: "dummy-token"
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Checkout local antd-style
+        uses: actions/checkout@v6
+        with:
+          repository: mise42/antd-style
+          ref: feat/zero-runtime-prototype
+          path: antd-style
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24.11.1
+          package-manager-cache: false
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.20.0
+
+      - name: Build linked antd-style package
+        working-directory: antd-style
+        run: |
+          npm install
+          npm run build
+          npm run verify:extract-prototype
+
+      - name: Point dependency to local antd-style
+        run: |
+          node -e "const fs=require('node:fs');const p='package.json';const pkg=JSON.parse(fs.readFileSync(p,'utf8'));pkg.dependencies=pkg.dependencies||{};pkg.dependencies['antd-style']='link:./antd-style';fs.writeFileSync(p,JSON.stringify(pkg,null,2)+'\n');"
+
+      - name: Install deps
+        run: pnpm install
+
+      - name: Build Next (extract on)
+        run: pnpm exec next build --webpack
+
+      - name: Verify extract assets (strict)
+        run: pnpm run verify:extract:next:strict

@@ -26,61 +26,66 @@ import { userGeneralSettingsSelectors } from '@/store/user/selectors';
 import { GlobalStyle } from '@/styles';
 import { setCookie } from '@/utils/client/cookie';
 
-const styles = createStaticStyles(({ css, cssVar }) => ({
-  app: css`
-    position: relative;
+const styles = createStaticStyles(
+  ({ css, cssVar }) => ({
+    app: css`
+      position: relative;
 
-    overscroll-behavior: none;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+      overscroll-behavior: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
 
-    height: 100%;
-    min-height: 100dvh;
-    max-height: 100dvh;
+      height: 100%;
+      min-height: 100dvh;
+      max-height: 100dvh;
 
-    @media (device-width >= 576px) {
-      overflow: hidden;
-    }
-  `,
-  // scrollbar-width and scrollbar-color are supported from Chrome 121
-  // https://developer.mozilla.org/en-US/docs/Web/CSS/scrollbar-color
-  scrollbar: css`
-    scrollbar-color: ${cssVar.colorFill} transparent;
-    scrollbar-width: thin;
-
-    #lobe-mobile-scroll-container {
-      scrollbar-width: none;
-
-      ::-webkit-scrollbar {
-        width: 0;
-        height: 0;
+      @media (device-width >= 576px) {
+        overflow: hidden;
       }
-    }
-  `,
+    `,
+    // scrollbar-width and scrollbar-color are supported from Chrome 121
+    // https://developer.mozilla.org/en-US/docs/Web/CSS/scrollbar-color
+    scrollbar: css`
+      scrollbar-color: ${cssVar.colorFill} transparent;
+      scrollbar-width: thin;
 
-  // so this is a polyfill for older browsers
-  scrollbarPolyfill: css`
-    ::-webkit-scrollbar {
-      width: 0.75em;
-      height: 0.75em;
-    }
+      #lobe-mobile-scroll-container {
+        scrollbar-width: none;
 
-    ::-webkit-scrollbar-thumb {
-      border-radius: 10px;
-    }
+        ::-webkit-scrollbar {
+          width: 0;
+          height: 0;
+        }
+      }
+    `,
 
-    :hover::-webkit-scrollbar-thumb {
-      border: 3px solid transparent;
-      background-color: ${cssVar.colorText};
-      background-clip: content-box;
-    }
+    // so this is a polyfill for older browsers
+    scrollbarPolyfill: css`
+      ::-webkit-scrollbar {
+        width: 0.75em;
+        height: 0.75em;
+      }
 
-    ::-webkit-scrollbar-track {
-      background-color: transparent;
-    }
-  `,
-}));
+      ::-webkit-scrollbar-thumb {
+        border-radius: 10px;
+      }
+
+      :hover::-webkit-scrollbar-thumb {
+        border: 3px solid transparent;
+        background-color: ${cssVar.colorText};
+        background-clip: content-box;
+      }
+
+      ::-webkit-scrollbar-track {
+        background-color: transparent;
+      }
+    `,
+  }),
+  {
+    styleId: 'layout-global-app-theme',
+  },
+);
 
 export interface AppThemeProps {
   children?: ReactNode;
