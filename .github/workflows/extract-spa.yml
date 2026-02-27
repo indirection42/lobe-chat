@@ -1,7 +1,7 @@
 name: Extract SPA CI
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: {}
   push:
     paths:
       - 'package.json'
@@ -52,7 +52,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10
+          version: 10.20.0
 
       - name: Build linked antd-style package
         working-directory: antd-style
