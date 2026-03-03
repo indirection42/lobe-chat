@@ -143,15 +143,24 @@ class GroupAgentBuilderExecutor extends BaseExecutor<typeof GroupAgentBuilderApi
     return groupAgentBuilderRuntime.updateAgentPrompt(groupId, params);
   };
 
-  updateGroup = async (params: UpdateGroupParams): Promise<BuiltinToolResult> => {
-    return groupAgentBuilderRuntime.updateGroup(params);
+  updateGroup = async (
+    params: UpdateGroupParams,
+    ctx: BuiltinToolContext,
+  ): Promise<BuiltinToolResult> => {
+    return groupAgentBuilderRuntime.updateGroup(params, ctx.groupId);
   };
 
-  updateGroupPrompt = async (params: UpdateGroupPromptParams): Promise<BuiltinToolResult> => {
-    return groupAgentBuilderRuntime.updateGroupPrompt({
-      streaming: true,
-      ...params,
-    });
+  updateGroupPrompt = async (
+    params: UpdateGroupPromptParams,
+    ctx: BuiltinToolContext,
+  ): Promise<BuiltinToolResult> => {
+    return groupAgentBuilderRuntime.updateGroupPrompt(
+      {
+        streaming: true,
+        ...params,
+      },
+      ctx.groupId,
+    );
   };
 
   // ==================== Inherited Operations (for supervisor agent) ====================

@@ -81,12 +81,12 @@ export class PluginTypesActionImpl {
         }
       }
 
-      // For group-agent-builder tools, inject activeGroupId from store if not in context
-      // This is needed because AgentBuilderProvider uses a separate scope for messages
-      // but still needs groupId for tool execution
+      // For group-agent-builder tools, fallback to message groupId when operation context misses it.
+      // Never fallback to global activeGroupId to avoid cross-group side effects when users switch groups
+      // while previous tool calls are still running.
       if (!groupId && payload.identifier === 'lobe-group-agent-builder') {
-        const { getChatGroupStoreState } = await import('@/store/agentGroup');
-        groupId = getChatGroupStoreState().activeGroupId;
+        const message = dbMessageSelectors.getDbMessageById(id)(this.#get());
+        groupId = message?.groupId ?? undefined;
       }
 
       // Get group orchestration callbacks if available (for group management tools)

@@ -19,17 +19,18 @@ interface AgentBuilderProviderProps {
  */
 const AgentBuilderProvider = memo<AgentBuilderProviderProps>(({ agentId, children }) => {
   // Use activeTopicId from chatStore (synced with URL query 'bt' via ProfileHydration)
-  const activeTopicId = useChatStore((s) => s.activeTopicId);
+  const [activeTopicId, activeGroupId] = useChatStore((s) => [s.activeTopicId, s.activeGroupId]);
 
   // Build conversation context for group agent builder
   // Using group_agent_builder scope with groupId for per-group message isolation
   const context = useMemo<MessageMapKeyInput>(
     () => ({
       agentId,
+      groupId: activeGroupId,
       scope: 'group_agent_builder',
       topicId: activeTopicId,
     }),
-    [agentId, activeTopicId],
+    [activeGroupId, agentId, activeTopicId],
   );
 
   // Get messages from ChatStore based on context

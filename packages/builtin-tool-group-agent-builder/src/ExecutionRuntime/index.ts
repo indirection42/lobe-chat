@@ -420,10 +420,12 @@ export class GroupAgentBuilderExecutionRuntime {
   /**
    * Update group configuration and metadata (unified method)
    */
-  async updateGroup(args: UpdateGroupParams): Promise<BuiltinToolResult> {
+  async updateGroup(args: UpdateGroupParams, groupId?: string): Promise<BuiltinToolResult> {
     try {
       const state = getChatGroupStoreState();
-      const group = agentGroupSelectors.currentGroup(state);
+      const group = groupId
+        ? agentGroupSelectors.getGroupById(groupId)(state)
+        : agentGroupSelectors.currentGroup(state);
 
       if (!group) {
         return {
@@ -445,13 +447,27 @@ export class GroupAgentBuilderExecutionRuntime {
 
       const updatedFields: string[] = [];
       const resultState: UpdateGroupState = { success: true };
+      const groupUpdate: Record<string, any> = {};
 
       // Update config if provided
       if (config) {
-        const configUpdate: { openingMessage?: string; openingQuestions?: string[] } = {};
+        const nextConfig = {
+          ...(group.config || {}),
+          ...(config.openingMessage !== undefined ? { openingMessage: config.openingMessage } : {}),
+          ...(config.openingQuestions !== undefined
+            ? { openingQuestions: config.openingQuestions }
+            : {}),
+        };
+
+        groupUpdate.config = nextConfig;
+        resultState.updatedConfig = {
+          ...(config.openingMessage !== undefined ? { openingMessage: config.openingMessage } : {}),
+          ...(config.openingQuestions !== undefined
+            ? { openingQuestions: config.openingQuestions }
+            : {}),
+        };
 
         if (config.openingMessage !== undefined) {
-          configUpdate.openingMessage = config.openingMessage;
           updatedFields.push(
             config.openingMessage
               ? `openingMessage (${config.openingMessage.length} chars)`
@@ -460,23 +476,17 @@ export class GroupAgentBuilderExecutionRuntime {
         }
 
         if (config.openingQuestions !== undefined) {
-          configUpdate.openingQuestions = config.openingQuestions;
           updatedFields.push(
             config.openingQuestions.length > 0
               ? `openingQuestions (${config.openingQuestions.length} questions)`
               : 'openingQuestions (cleared)',
           );
         }
-
-        if (Object.keys(configUpdate).length > 0) {
-          await state.updateGroupConfig(configUpdate);
-          resultState.updatedConfig = configUpdate;
-        }
       }
 
       // Update meta if provided
       if (meta && Object.keys(meta).length > 0) {
-        await state.updateGroupMeta(meta);
+        Object.assign(groupUpdate, meta);
         resultState.updatedMeta = meta;
 
         if (meta.avatar !== undefined) {
@@ -497,6 +507,10 @@ export class GroupAgentBuilderExecutionRuntime {
         }
       }
 
+      if (Object.keys(groupUpdate).length > 0) {
+        await state.updateGroup(group.id, groupUpdate);
+      }
+
       // Refresh the group detail in the store to ensure data sync
       await state.refreshGroupDetail(group.id);
 
@@ -515,10 +529,15 @@ export class GroupAgentBuilderExecutionRuntime {
   /**
    * Update group shared prompt/content
    */
-  async updateGroupPrompt(args: UpdateGroupPromptParams): Promise<BuiltinToolResult> {
+  async updateGroupPrompt(
+    args: UpdateGroupPromptParams,
+    groupId?: string,
+  ): Promise<BuiltinToolResult> {
     try {
       const state = getChatGroupStoreState();
-      const group = agentGroupSelectors.currentGroup(state);
+      const group = groupId
+        ? agentGroupSelectors.getGroupById(groupId)(state)
+        : agentGroupSelectors.currentGroup(state);
 
       if (!group) {
         return {
@@ -532,7 +551,7 @@ export class GroupAgentBuilderExecutionRuntime {
 
       if (args.streaming) {
         // Use streaming mode for typewriter effect
-        await this.streamUpdateGroupPrompt(args.prompt);
+        await this.streamUpdateGroupPrompt(args.prompt, group.id);
       } else {
         // Update the content directly
         await state.updateGroup(group.id, { content: args.prompt });
@@ -570,13 +589,10 @@ export class GroupAgentBuilderExecutionRuntime {
   /**
    * Stream update group prompt with typewriter effect
    */
-  private async streamUpdateGroupPrompt(prompt: string): Promise<void> {
+  private async streamUpdateGroupPrompt(prompt: string, groupId: string): Promise<void> {
     const state = getChatGroupStoreState();
-    const group = agentGroupSelectors.currentGroup(state);
 
-    if (!group) return;
-
-    await state.updateGroup(group.id, { content: prompt });
+    await state.updateGroup(groupId, { content: prompt });
   }
 
   // ==================== Error Handling ====================

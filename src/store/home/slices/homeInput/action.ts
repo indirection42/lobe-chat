@@ -136,7 +136,11 @@ export class HomeInputActionImpl {
 
         const { sendMessage } = useChatStore.getState();
         await sendMessage({
-          context: { agentId: groupAgentBuilderId, scope: 'group_agent_builder' },
+          context: {
+            agentId: groupAgentBuilderId,
+            groupId: group.id,
+            scope: 'group_agent_builder',
+          },
           message,
         });
       }
